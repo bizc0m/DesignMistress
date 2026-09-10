@@ -489,7 +489,8 @@ async function restoreSession(){
 // Une seule voie d’import pour le bouton, le dépôt global et les iframes connectées. Accepte .html/.htm/.xhtml et .zip (en extrait les fichiers HTML).
 async function importFiles(files){
  if(closedSession)resumeWorkspace();
- const first=state.dashboards.length;const rejected=[];reportImportError('');
+ let opened=null;const rejected=[];reportImportError('');
+ const openImported=(url,raw,key)=>{addDashboard(url,raw,key);const d=state.dashboards.find(d=>d.fileKey===key);if(!opened&&d)opened=d};
  for(const f of files){
   if(!f||typeof f.name!=='string'){rejected.push(f?.name||'fichier inconnu');continue}
   if(/\.zip$/i.test(f.name)||f.type==='application/zip'||f.type==='application/x-zip-compressed'){
@@ -498,14 +499,14 @@ async function importFiles(files){
    if(!result.entries.length)rejected.push(f.name+' : aucun fichier .html/.htm dans l’archive');
    result.errors.forEach(msg=>rejected.push(f.name+'/'+msg));
    for(const entry of result.entries){
-    try{addDashboard('local:'+f.name+'!'+entry.name,entry.text,[f.name,entry.name,entry.text.length].join('|'))}catch(error){rejected.push(f.name+'/'+entry.name+' : '+(error?.message||String(error)))}
+    try{openImported('local:'+f.name+'!'+entry.name,entry.text,[f.name,entry.name,entry.text.length].join('|'))}catch(error){rejected.push(f.name+'/'+entry.name+' : '+(error?.message||String(error)))}
    }
    continue;
   }
   if(!(/\.(html?|xhtml)$/i.test(f.name)||f.type==='text/html')){rejected.push(f.name||'fichier inconnu');continue}
-  try{addDashboard('local:'+f.name,await readHtmlFile(f),[f.name,f.size,f.lastModified].join('|'))}catch(error){rejected.push(f.name+' : '+(error?.message||String(error)))}
+  try{openImported('local:'+f.name,await readHtmlFile(f),[f.name,f.size,f.lastModified].join('|'))}catch(error){rejected.push(f.name+' : '+(error?.message||String(error)))}
  }
- if(state.dashboards.length>first)switchDashboard(first);
+ if(opened)switchDashboard(state.dashboards.indexOf(opened));
  $('validation').textContent=rejected.length?'Fichiers ignorés (HTML/ZIP requis ou lecture impossible) : '+rejected.join(', '):'';
  if(rejected.length){reportImportError($('validation').textContent);toast($('validation').textContent);}
 }
