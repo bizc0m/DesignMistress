@@ -1,0 +1,16 @@
+{
+  "name": "nametent-studio-capsule",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Tauri capsule for NameTent, DesignMistress and TAMI workflows",
+  "scripts": {
+    "build:assets": "python3 build.py",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "android:init": "tauri android init",
+    "ios:init": "tauri ios init"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

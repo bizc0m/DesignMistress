@@ -1,0 +1,17 @@
+[package]
+name = "nametent-studio-capsule"
+version = "0.1.0"
+description = "NameTent Studio cross-platform capsule"
+authors = ["NameTent"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
